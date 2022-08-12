@@ -3,20 +3,28 @@ import { Button } from 'components/Button/index';
 import Loader from 'components/Loader/index';
 import Title from 'components/Title/index';
 import { Context } from 'context/AppContext';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { BodyContainer, ManageContainer, Wrapper, ImageContainer } from './styles';
 
 const ModalContentDetails = () => {
-  const { handleCloseModal, selectedItem, handleSelectedItem } = useContext(Context);
-
+  const isMounted = useRef(false);
   const [image, setImage] = useState(null);
+  const { handleCloseModal, selectedItem, handleSelectedItem } = useContext(Context);
 
   const getData = async () => {
     const breedImage = await getBreedImage(selectedItem);
     setImage(breedImage);
   };
 
-  useEffect(() => getData, []);
+  useEffect(() => {
+    if (isMounted.current) {
+      getData();
+    }
+
+    return () => {
+      isMounted.current = true;
+    };
+  }, []);
 
   return (
     <Wrapper>
